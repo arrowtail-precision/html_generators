@@ -97,9 +97,31 @@ assert_equal(len(list(x)), 0)
 
 # Missing params ignored
 assert_equal(str(h.template("{{a}}{{b}}")), "")
+# Missing params unchanged
+assert_equal(str(h.template("{{a}}{{b}}")), "{{a}}{{b}}")
 
 # You can pass html
 assert_equal(str(h.template("{{a}}", a=h.Br())), "<br>")
 
+# Make sure single-brace works
+assert_equal(str(h.template("{a}{b}", a="A", b="B")), "AB")
+assert_equal(str(h.template("{a}{b}")), "{a}{b}")
+assert_equal(str(h.template("{a}", a=h.Br())), "<br>")
+
+# Make sure params are escaped
+assert_equal(str(h.template("{a}", a="1<2")), "1&lt;2")
+# Make sure HtmlGenerator params work as expected
+assert_equal(str(h.template("{a}", a=h.Br())), "<br>")
+
+assert_equal(
+    str(
+        h.format(
+            "<Please {link_start}click here{link_end}.",
+            link_start=h.A(href="foo").open_tag(),
+            link_end=h.A().close_tag(),
+        )
+    ),
+    '&lt;Please <a href="foo">click here</a>.',
+)
 
 print("Basic tests passed.")
